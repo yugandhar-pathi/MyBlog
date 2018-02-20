@@ -3,17 +3,17 @@ import logo from './logo.svg';
 import './App.css';
 import { Menu,Modal,Button,Form } from 'semantic-ui-react'
 
+
 import {
   Route,
   NavLink,
-  HashRouter,
-  Redirect
+  BrowserRouter
 } from "react-router-dom";
 
 import RegisterUser from './RegisterUser.js'
 import HomePage from './HomePage.js'
 import PostBlog from './PostBlog.js'
-
+import DisplayBlog from './DisplayBlog.js'
 
 
 class App extends Component {
@@ -31,14 +31,6 @@ class App extends Component {
 
 		this.SUCCESS = 0; // end point sent success
 		this.ERROR = -1; //end point sent error message
-	}
-
-	handleItemClick(event){
-		const target = event.target;
-		if(target.name === 'PostBlog'){
-
-			
-		}
 	}
   
 	handleModelOpen(){
@@ -63,10 +55,8 @@ class App extends Component {
 		  .then(function(result){
 				console.log('Result for authUser '+JSON.stringify(result));
 				if(result.resultCode === myApp.SUCCESS){
-					//Navigate to post a blog page -- navigateToPostBlog
-					myApp.setState({
-						navigateToPostBlog:true
-					})
+					//Navigate to post a blog page -- navigateToPostBlog - @TODO
+
 				}
 				if(result.resultCode === myApp.ERROR){
 					myApp.setState({
@@ -91,16 +81,9 @@ class App extends Component {
 		})
 	}
 
-	render() {
-		const authResult = this.state.endPointResult;
-		console.log('endPointResult '+authResult);
-		
-		if(this.state.navigateToPostBlog){
-			return <Route path="/PostBlog" component={PostBlog}/>
-		}
-		
+	render() {		
 		return (
-			<HashRouter>
+			<BrowserRouter>
 				<div>
 					<Menu secondary>
 						<Menu.Item name='TechBlogs'><NavLink to="/">Pathi Yugandhar's Tech Blogs</NavLink></Menu.Item>
@@ -117,7 +100,7 @@ class App extends Component {
 										  <Form.Input label='Password:' name="password" type='password' onChange={this.handleUserCredChange}/>
 										  <Form.Button onClick={this.handleLogin}>Login</Form.Button>
 										</Form>
-										{authResult === this.ERROR ? <p>{this.state.errorMessage}</p>:<p></p>}
+										{this.state.endPointResult === this.ERROR ? <p>{this.state.errorMessage}</p>:<p></p>}
 										<NavLink onClick={this.handleModelClose} to="/RegisterUser">Not an User?Register Now.</NavLink>
 									</Modal.Description>
 								</Modal.Content>
@@ -128,13 +111,13 @@ class App extends Component {
 						<Route exact path="/" component={HomePage}/>
 						<Route path="/RegisterUser" component={RegisterUser}/>
 						<Route path="/PostBlog" component={PostBlog}/>
+						<Route path="/DisplayBlog/:id" component={DisplayBlog}/>
 					</div>
 				</div>
-			</HashRouter>
+			</BrowserRouter>
 
 			);
-		}
 	}
+}
 
 export default App;
-

@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import { Container,List } from 'semantic-ui-react'
+import {
+  BrowserRouter,
+  NavLink
+} from "react-router-dom";
 
 export default class HomePage extends Component {
 
@@ -41,21 +45,22 @@ export default class HomePage extends Component {
 		  return <div>Loading...</div>;
 		} else {
 		  return (
-			<div>
+			<BrowserRouter>
 				<Container textAlign="justified">
 					<List>
 						{items.map(item => (
-							<List.Item key={item.id}>
-								<List.Content>
-									<List.Header as='a'>{item.title}</List.Header>
-									<List.Description as='a'> by ..{item.author} on {item.date}</List.Description>
-								</List.Content>
-							  {item.name} {item.price}
+							<List.Item id={item._id}>
+								<NavLink to={"/DisplayBlog/"+item._id}>
+									<List.Content>
+										<List.Header as='a'>{item.title}</List.Header>
+										<List.Description as='a'> by ..{item.author} on {item.date}</List.Description>
+									</List.Content>
+								</NavLink>
 							</List.Item>
 						  ))}
 					</List>
 				</Container>
-			</div>
+			</BrowserRouter>
 		  );
 		}
 	}

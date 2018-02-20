@@ -1,13 +1,7 @@
 import React,{Component} from 'react';
 import 'semantic-ui-css/semantic.min.css';
-import { Form,Grid,Container,Header,Segment } from 'semantic-ui-react'
+import { Form,Grid,Container,Header,Segment,Message } from 'semantic-ui-react'
 
-
-/*
-	Send user details to server.
-	Form validation
-	Indicate fields as mandatory.
-*/
 
 export default class RegisterUser extends Component {
 
@@ -15,11 +9,16 @@ export default class RegisterUser extends Component {
 		super(props)		
 		this.state = {
 			firstName : "",
+			isFirstNameValid:false,
 			lastName : "",
+			isLastNameValid:false,
 			userid : "",
+			isUserIdValid:false,
 			password : "",
+			isPasswordValid:false,
 			confPassword : "",
-			email:String
+			isPasswordConfirmed:true,
+			email:""
 		}
 
 		this.handleChange = this.handleChange.bind(this);
@@ -31,6 +30,43 @@ export default class RegisterUser extends Component {
 		const name = target.name
 		const value = target.value
 
+		if(name === 'firstName'){
+			if(value.length < 2){
+				this.state.isFirstNameValid = false;
+			}else{
+				this.state.isFirstNameValid = true;
+			}
+		}
+		
+		if(name === 'lastName'){
+			if(value.length < 2){
+				this.state.isLastNameValid = false;
+			}else{
+				this.state.isLastNameValid = true;
+			}
+		}
+		
+		if(name === 'userid'){
+			if(value.length < 8){
+				this.state.isUserIdValid = false;
+			}else{
+				this.state.isUserIdValid = true;
+			}
+		}
+		if(name === 'password'){
+			if(value.length < 8){
+				this.state.isPasswordValid = false;
+			}else{
+				this.state.isPasswordValid = true;
+			}
+		}
+		if(name === 'confPassword'){
+			if( value === this.state.password){
+				this.state.isPasswordConfirmed = true;
+			}else{
+				this.state.isPasswordConfirmed = false;
+			}
+		}
 		this.setState({
 			[name]:value
 		})
@@ -42,7 +78,13 @@ export default class RegisterUser extends Component {
 			headers:{
 				'Content-Type':'application/json'
 			},
-			body:JSON.stringify(this.state)
+			body:JSON.stringify({
+				firstName : this.state.firstName,
+				lastName : this.state.lastName,
+				userid : this.state.userid,
+				password : this.state.password,
+				email:this.state.email
+			})
 		}).then(function(resut){
 			console.log('success for registerUser');
 		},function(error){
@@ -51,6 +93,10 @@ export default class RegisterUser extends Component {
 	}
 
 	render(){
+
+		const isFormValid = (this.state.isFirstNameValid && this.state.isLastNameValid && 
+							this.state.isUserIdValid && this.state.isPasswordValid && this.state.isPasswordConfirmed );
+  
 		return (
 			<div>
 				<Container fluid textAlign='justified'>
@@ -60,18 +106,22 @@ export default class RegisterUser extends Component {
 						  <Grid.Column>
 						  </Grid.Column>
 						  <Grid.Column width={7}>
-
 						        <Form size={'large'} key={'large'} onSubmit={this.handleSubmit}>
 						          <Form.Group>
-						            <Form.Input label="First Name:" type="text" placeholder="First name" name="firstName" onChange={this.handleChange}/> 
-						            <Form.Input label="Last Name:" type="text" placeholder="Last name" name="lastName" onChange={this.handleChange}/>
+						            <Form.Input required label="First Name:" type="text" placeholder="First name" name="firstName" onChange={this.handleChange}/> 
+									{!this.state.isFirstNameValid?<Message content='Minimum 2 chars length.'/>:<p></p>}
+						            <Form.Input required label="Last Name:" type="text" placeholder="Last name" name="lastName" onChange={this.handleChange}/>
+									{!this.state.isLastNameValid?<Message content='Minimum 2 chars lenght.'/>:<p></p>}
 						          </Form.Group>
-						          <Form.Input label="Choose your id:" type="text" name="userid" onChange={this.handleChange}/>
-
-						          <Form.Input label='Enter Password:' name="password" type='password' onChange={this.handleChange}/>
-						          <Form.Input label='Confirm Password:' name="confPassword" type='password' onChange={this.handleChange}/>
-						           <Form.Input label='Email:' name="email" type='email' onChange={this.handleChange}/>
-						          <Form.Button>Register Now</Form.Button>
+						          <Form.Input required label="Choose your id:" type="text" name="userid" onChange={this.handleChange}/>
+								  {!this.state.isUserIdValid?<Message content='Id should be of minimum 8 chars length.'/>:<p></p>}
+								  
+						          <Form.Input required label='Enter Password:' name="password" type='password' onChange={this.handleChange}/>
+								  {!this.state.isPasswordValid?<Message content='Password should be of minimum 8 chars length.'/>:<p></p>}
+						          <Form.Input required label='Confirm Password:' name="confPassword" type='password' onChange={this.handleChange}/>
+								  {!this.state.isPasswordConfirmed?<Message content="Password doesn't match."/>:<p></p>}
+						          <Form.Input label='Email:' name="email" type='email' onChange={this.handleChange}/>
+						          <Form.Button disabled={!isFormValid}>Register Now</Form.Button>
 						        </Form>
 
 					      </Grid.Column>
