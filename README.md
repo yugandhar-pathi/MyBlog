@@ -16,8 +16,9 @@ Setup Instructions:
 2.Install Mongodb  
 3.Run npm install on package.json  
 4.Start DB server  
-5.Start node server using server.js  
-6.Application can be launched from localhost.  
+5.Build the application using - yarn build.  
+6.Start node server using - node server.js  
+7.Application can be launched from localhost.  
 
 Implementation Details:  
 Client is on Single Page Application using react DOM.  
