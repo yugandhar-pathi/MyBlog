@@ -2,6 +2,9 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+
 const app = express()
 const router = express.Router()
 
@@ -47,10 +50,30 @@ class AuthServices extends BaseServices {
 		});
 	}
 	
+	isAuthenticationRequired(req,res){
+		if(!req.cookies){
+			console.log('did not receive any cookies with request');
+			return res.send(this.error);
+		}
+		
+		if (!authTicket){
+			console.log('did not receive token');
+			return res.status(401).send({ auth: false, message: 'No token provided.' });
+		}
+  
+		jwt.verify(token, tempSec, function(err, decoded) {
+			if (err) 
+				return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+		});
+		
+		res.status(200).send(decoded);
+	}
+	
 	authenticateUser(req,res){
 		var userToAuthenticate = new this.model(req.body);
 		console.log(userToAuthenticate);
 		var self = this;
+		
 		//Query for userid
 		this.model.findOne({userid:userToAuthenticate.userid},'password',function(err,user){
 			if(err) {
@@ -59,9 +82,14 @@ class AuthServices extends BaseServices {
 				res.send(self.error);
 				return;
 			}
+			
 			if(user != null){
 				console.log(JSON.stringify(user));
 				if(user.password === userToAuthenticate.password){
+					var token = jwt.sign({ id:userToAuthenticate.userid }, 'tempSec', {
+						expiresIn: 86400 // expires in 24 hours
+					});
+					res.cookie('authToken', token, {domain:'pathiyugandhar.com',maxAge:86400000 });
 					res.send(self.success);
 				}else{
 					console.log("password doesn't match");
@@ -104,16 +132,29 @@ class BlogServices extends BaseServices {
 
 	}
 	
-	fetchBlog(req,res){
-		const query = this.model.find();
-		console.log(query)
-		res.send(this.success);
+	fetchBlog(req,res,blogId){
+		const query = this.model.findOne({_id:blogId});
+		//console.log(query)
+		query.select('_id title body author date');
+		
+		var self = this;
+		// execute the query
+		query.exec(function (err,blogDetails) {
+			if (err){
+				console.log('error occured');
+				return;// handleError(err); @TODO
+			}
+			//fill the query
+			self.success.item = blogDetails;
+			console.log('Blog Detials '+JSON.stringify(blogDetails));
+			res.send(self.success);
+		});
 	}
 	
 	fetchBlogList(req,res){
 		const query = this.model.find();
 		// selecting id,title and author for each blog
-		query.select('id title author date');
+		query.select('_id title author date');
 		
 		var self = this;
 		// execute the query
@@ -146,6 +187,10 @@ app.post('/authUser', function(req, res){
 	authSerivces.authenticateUser(req,res);
 });
 
+app.get('/isAuthenticationRequired', function(req, res){
+	authSerivces.isAuthenticationRequired(req,res);
+});
+
 //Blog end points
 const blogServices = new BlogServices();
 app.post('/postBlog', function(req, res){
@@ -153,8 +198,9 @@ app.post('/postBlog', function(req, res){
 	blogServices.postBlog(req,res);
 });
 
-app.get('/fetchBlog', function(req, res){
-	blogServices.fetchBlog(req,res);
+app.get('/fetchBlog/:id', function(req, res){
+	console.log("Blog id"+req.params.id);
+	blogServices.fetchBlog(req,res,req.params.id);
 });
 
 app.get('/fetchBlogList', function(req, res){
