@@ -1,6 +1,9 @@
 # MyBlog
 Website to blog technical learnings
 
+Code is deployed @ www.PathiYugandhar.com  
+(Firewall proxy may block this, if that is the case please test on any other device which is not behind Firewall).  
+
 Technical Stack:  
 Client:  
 -> ReactJS  
