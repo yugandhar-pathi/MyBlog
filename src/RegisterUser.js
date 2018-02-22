@@ -9,124 +9,137 @@ export default class RegisterUser extends Component {
 		super(props)		
 		this.state = {
 			firstName : "",
-			isFirstNameValid:false,
 			lastName : "",
-			isLastNameValid:false,
+			isNameValid:false,
 			userid : "",
 			isUserIdValid:false,
 			password : "",
 			isPasswordValid:false,
 			confPassword : "",
 			isPasswordConfirmed:true,
-			email:""
+			email:"",
+			formSubmissionFailed:false,
+			formSubmissionMessage:''
 		}
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
-
+	
+	
+	/*
+		Handle form validation on each char input.
+	*/
 	handleChange(event){
-		const target = event.target
-		const name = target.name
-		const value = target.value
+		const target = event.target;
+		const name = target.name;
+		const value = target.value;
+		const isValidField = '';
 
-		if(name === 'firstName'){
+		var isValid = false;
+		if(name === 'firstName' || name === 'lastName'){
 			if(value.length < 2){
-				this.state.isFirstNameValid = false;
+				isValid = false;
 			}else{
-				this.state.isFirstNameValid = true;
+				isValid = true;
 			}
+			this.setState({
+				[name]:value,
+				isNameValid : isValid
+			})
+			return false;
 		}
 		
-		if(name === 'lastName'){
-			if(value.length < 2){
-				this.state.isLastNameValid = false;
-			}else{
-				this.state.isLastNameValid = true;
-			}
-		}
-		
-		if(name === 'userid'){
+		if(name === 'userid' || name === 'password'){
 			if(value.length < 8){
-				this.state.isUserIdValid = false;
+				isValid = false;
 			}else{
-				this.state.isUserIdValid = true;
+				isValid = true;
 			}
+			const validField = name === 'userid' ? 'isUserIdValid' : 'isPasswordValid'
+			this.setState({
+				[name]:value,
+				[validField] : isValid
+			})
+			return false;
 		}
-		if(name === 'password'){
-			if(value.length < 8){
-				this.state.isPasswordValid = false;
-			}else{
-				this.state.isPasswordValid = true;
-			}
-		}
+
 		if(name === 'confPassword'){
 			if( value === this.state.password){
-				this.state.isPasswordConfirmed = true;
+				isValid = true;
 			}else{
-				this.state.isPasswordConfirmed = false;
+				isValid = false;
 			}
+			this.setState({
+				[name]:value,
+				isPasswordConfirmed : isValid
+			})
 		}
-		this.setState({
-			[name]:value
-		})
 	}
 
 	handleSubmit(event){
+		var form = this;
 		fetch('/registerUser',{
 			method:'POST',
 			headers:{
 				'Content-Type':'application/json'
 			},
 			body:JSON.stringify({
-				firstName : this.state.firstName,
-				lastName : this.state.lastName,
-				userid : this.state.userid,
-				password : this.state.password,
-				email:this.state.email
+				firstName : form.state.firstName,
+				lastName : form.state.lastName,
+				userid : form.state.userid,
+				password : form.state.password,
+				email:form.state.email
 			})
-		}).then(function(resut){
-			console.log('success for registerUser');
+		}).then(res => res.json())
+		  .then(function(result){
+			if(result.resultCode === 0){
+				console.log('success for registerUser');
+				form.props.history.push('/Login');
+			}else{
+				form.setState({
+					formSubmissionFailed : true,
+					formSubmissionMessage : result.resultMessage
+				});
+			}
 		},function(error){
 			console.log('error for registerUser');
+			form.setState({
+				formSubmissionFailed : true,
+				formSubmissionMessage : error.resultMessage
+			});
 		});
 	}
 
 	render(){
 
-		const isFormValid = (this.state.isFirstNameValid && this.state.isLastNameValid && 
+		const isFormValid = (this.state.isNameValid && 
 							this.state.isUserIdValid && this.state.isPasswordValid && this.state.isPasswordConfirmed );
   
 		return (
 			<div>
-				<Container fluid textAlign='justified'>
-					<Header>Register User</Header>
-					<Grid columns={2} divided stackable>
-						<Grid.Row>
-						  <Grid.Column>
-						  </Grid.Column>
-						  <Grid.Column width={7}>
-						        <Form size={'large'} key={'large'} onSubmit={this.handleSubmit}>
-						          <Form.Group>
-						            <Form.Input required label="First Name:" type="text" placeholder="First name" name="firstName" onChange={this.handleChange}/> 
-									{!this.state.isFirstNameValid?<Message content='Minimum 2 chars length.'/>:<p></p>}
-						            <Form.Input required label="Last Name:" type="text" placeholder="Last name" name="lastName" onChange={this.handleChange}/>
-									{!this.state.isLastNameValid?<Message content='Minimum 2 chars lenght.'/>:<p></p>}
-						          </Form.Group>
-						          <Form.Input required label="Choose your id:" type="text" name="userid" onChange={this.handleChange}/>
-								  {!this.state.isUserIdValid?<Message content='Id should be of minimum 8 chars length.'/>:<p></p>}
-								  
-						          <Form.Input required label='Enter Password:' name="password" type='password' onChange={this.handleChange}/>
-								  {!this.state.isPasswordValid?<Message content='Password should be of minimum 8 chars length.'/>:<p></p>}
-						          <Form.Input required label='Confirm Password:' name="confPassword" type='password' onChange={this.handleChange}/>
-								  {!this.state.isPasswordConfirmed?<Message content="Password doesn't match."/>:<p></p>}
-						          <Form.Input label='Email:' name="email" type='email' onChange={this.handleChange}/>
-						          <Form.Button disabled={!isFormValid}>Register Now</Form.Button>
-						        </Form>
+				<Container>
+					<Container textAlign='justified'>
+						<Header>Register User</Header>
+						<Form size={'large'} key={'large'} onSubmit={this.handleSubmit}>
+						  <Form.Group>
+							<Form.Input required label="First Name:" placeholder="Min 2 chars" type="text" name="firstName" onChange={this.handleChange}/> 
+							<Form.Input required label="Last Name:" type="text" placeholder="Min 2 chars" name="lastName" onChange={this.handleChange}/>
+						  </Form.Group>
+						  {!this.state.isNameValid?<Message content='First or Last name should be of min 2 chars length.'/>:<p></p>}
+						  <Form.Input required label="Choose your id:" type="text" name="userid" onChange={this.handleChange}/>
+						  {!this.state.isUserIdValid?<Message content='Id should be of minimum 8 chars length.'/>:<p></p>}
+						  
+						  <Form.Input required label='Enter Password:' name="password" type='password' onChange={this.handleChange}/>
+						  {!this.state.isPasswordValid?<Message content='Password should be of minimum 8 chars length.'/>:<p></p>}
+						  <Form.Input required label='Confirm Password:' name="confPassword" type='password' onChange={this.handleChange}/>
+						  {!this.state.isPasswordConfirmed?<Message content="Password doesn't match."/>:<p></p>}
+						  <Form.Input label='Email:' name="email" type='email' onChange={this.handleChange}/>
+						  <Form.Button disabled={!isFormValid}>Register Now</Form.Button>
+						  {this.state.formSubmissionFailed ?<Message header='Submission Failed' content={this.state.formSubmissionMessage}/> : <p></p> }
+						</Form>
 
-					      </Grid.Column>
-					    </Grid.Row>
-				    </Grid>
+					</Container>
 				</Container>
 			</div>
 			);

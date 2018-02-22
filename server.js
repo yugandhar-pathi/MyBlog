@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -12,6 +13,7 @@ app.use(express.static(__dirname + '/build'));
 app.use(bodyParser.urlencoded({'extended':'true'}));
 app.use(bodyParser.json());
 app.use(bodyParser.json({type:'application/vnd.api+json'}));
+app.use(cookieParser());
 
 //connect to db server
 mongoose.connect('mongodb://localhost/myBlog');
@@ -39,34 +41,59 @@ class AuthServices extends BaseServices {
 	
 	registerUser(req,res){
 		console.log("Begin registerUser"+JSON.stringify(req.body));
+		var self = this;
 		var newUser = new this.model(req.body);
 		console.log(JSON.stringify(newUser));
-		newUser.save()
-		.then(item => {
-			res.send(this.success);
+		this.model.findOne({userid:newUser.userid},'password',function(err,user){
+			if(err) {
+				//handle error
+				console.log('handle error case');
+				return res.status(200).send({ resultCode : -1, resultMessage : "Error" });
+			}
+			if(user != null){
+				console.log("User Id already exists");
+				res.send({ resultCode : -1, resultMessage : "User Id Already exists" });
+				console.log("after user sends response");
+			}else{
+				console.log('user id doesnt exist');
+				newUser.save()
+				.then(item => {
+					res.status(200).send({ resultCode : 0, resultMessage : "Success" });
+				})
+				.catch(err => {
+					res.status(200).send({ resultCode : -1, resultMessage : "Error" });
+				});
+			}
+		}).catch(error => {
+			console.log(error);
 		})
-		.catch(err => {
-			//res.send(error);
-		});
+
 	}
 	
 	isAuthenticationRequired(req,res){
+		console.log("cookies "+req.cookies.authToken);
 		if(!req.cookies){
 			console.log('did not receive any cookies with request');
-			return res.send(this.error);
+			return res.send({ auth: false, message: 'No token provided.' });
 		}
 		
-		if (!authTicket){
+		const authToken = req.cookies.authToken;
+		
+		if (!authToken){
 			console.log('did not receive token');
-			return res.status(401).send({ auth: false, message: 'No token provided.' });
+			return res.status(200).send({ auth: false, message: 'No token provided.' });
 		}
   
-		jwt.verify(token, tempSec, function(err, decoded) {
-			if (err) 
-				return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+		jwt.verify(authToken, 'tempSec', function(err, decoded) {
+			if (err) {
+				console.log('error occured while verify authToken');
+				return res.status(200).send({ auth: false, message: 'Failed to authenticate token.' });
+			}
+			
+			res.status(200).send({ auth: true, userid:decoded.id });
 		});
 		
-		res.status(200).send(decoded);
+		
 	}
 	
 	authenticateUser(req,res){
@@ -86,10 +113,11 @@ class AuthServices extends BaseServices {
 			if(user != null){
 				console.log(JSON.stringify(user));
 				if(user.password === userToAuthenticate.password){
+					//Generate auth Token to set on the client.
 					var token = jwt.sign({ id:userToAuthenticate.userid }, 'tempSec', {
 						expiresIn: 86400 // expires in 24 hours
 					});
-					res.cookie('authToken', token, {domain:'pathiyugandhar.com',maxAge:86400000 });
+					res.cookie('authToken', token, {domain:'pathiyugandhar.com' });
 					res.send(self.success);
 				}else{
 					console.log("password doesn't match");
@@ -145,7 +173,7 @@ class BlogServices extends BaseServices {
 				return;// handleError(err); @TODO
 			}
 			//fill the query
-			self.success.item = blogDetails;
+			self.success.blog = blogDetails;
 			console.log('Blog Detials '+JSON.stringify(blogDetails));
 			res.send(self.success);
 		});

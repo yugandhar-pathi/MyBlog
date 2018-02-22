@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container,List,Button } from 'semantic-ui-react'
+import { Container,List,Button,Header } from 'semantic-ui-react'
 import {  NavLink } from 'react-router-dom';
 
 export default class HomePage extends Component {
@@ -7,27 +7,30 @@ export default class HomePage extends Component {
 	constructor(props){
 		super(props)
 		
-		/*this.state = {
+		this.state = {
 		  error: null,
 		  isLoaded: false,
 		  items: []
-		};*/
+		};
 		
-		this.state = {
+		/*this.state = {
 		  error: null,
 		  isLoaded: true,
-		  items:[{"_id":"5a8a82076c79bb0e6cb24f05","title":"hi","date":"2018-02-19T00:00:00.000Z"},{"_id":"5a8a82086c79bb0e6cb24f06","title":"hi","date":"2018-02-19T00:00:00.000Z"}]
-		};
+		  items:[{"_id":"5a8a82076c79bb0e6cb24f05","title":"hi","author":"pathi","date":"2018-02-19T00:00:00.000Z"},{"_id":"5a8a82086c79bb0e6cb24f06","title":"hi","date":"2018-02-19T00:00:00.000Z"}]
+		};*/
 		
 		this.postBlog = this.postBlog.bind(this);
 	}
 	
-	
 	componentDidMount() {
-		/*fetch("/fetchBlogList")
+		/*
+			Fetch list of Blogs posted by all users.
+		*/
+		fetch("/fetchBlogList")
 		  .then(res => res.json())
 		  .then(
 			(result) => {
+			  //Blog det
 			  this.setState({
 				isLoaded: true,
 				items: result.items
@@ -36,27 +39,32 @@ export default class HomePage extends Component {
 			(error) => {
 			  this.setState({
 				isLoaded: true,
-				error
+				error : error
 			  });
 			}
-		  )*/
+		  )
 	}
 	
+	/*
+		User should authenticate before posting a blog.
+	*/
 	postBlog(){
 		var myApp = this;
-		fetch("/isAuthenticationRequired")
-		  .then(res => res.json())
+		fetch("/isAuthenticationRequired",{
+			credentials: 'same-origin',
+		}).then(res => res.json())
 		  .then(
 			(result) => {
-				//User is already authenticated, take him to post a blog page.
-				if(result.resultCode === 0){
-					myApp.props.history.push("/PostBlog");
+				if(result.auth){
+					//User is already authenticated, display screen to post a blog
+					myApp.props.history.push("/PostBlog/"+result.userid);
 				}else{
+					//User is not authenticated, display login screen
 					myApp.props.history.push("/Login");
 				}
 			},
 			(error) => {
-				//User is not authenticated take him to login page.
+				//fall back case.
 				myApp.props.history.push("/Login");
 			}
 		  )
@@ -70,26 +78,28 @@ export default class HomePage extends Component {
 		  return <div>Loading...</div>;
 		} else {
 		  return (
-
 				<Container textAlign="justified">
+					<Header as='h1'>Thanks for reaching my Website!!</Header>
+					<p>I plan to use this website record my technical learnings. </p>
+					<p>I have an option for visitors like you, to post on technical topics here.</p>
+					<p>You find any interisting topics and would like to post? Please go ahead.</p>
 					<Button onClick={this.postBlog}>PostBlog</Button>
+					
+					<Header as='h3'>Please find below list of topics posted till now.</Header>
 					<List>
 						{items.map(item => (
 							<List.Item key={item._id}>
 								<NavLink to={'/DisplayBlog/'+item._id}>
 									<List.Content>
 										<List.Header>{item.title}</List.Header>
-										<List.Description> by ..{item.author} on {item.date}</List.Description>
+										<List.Description> Posted by ..<b>{item.author}</b> on {item.date}</List.Description>
 									</List.Content>
 								</NavLink>
 							</List.Item>
 						  ))}
 					</List>
 				</Container>
-
 		  );
 		}
 	}
-
-
 }

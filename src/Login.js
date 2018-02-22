@@ -44,13 +44,14 @@ export default class Login extends Component {
 			headers:{
 				'Content-Type':'application/json'
 			},
+			credentials: 'same-origin',
 			body:JSON.stringify(this.state)
 		}).then(res => res.json())
 		  .then(function(result){
 				console.log('Result for authUser '+JSON.stringify(result));
 				if(result.resultCode === myApp.SUCCESS){
-					//Navigate to post a blog page -- navigateToPostBlog - @TODO
-					myApp.props.history.push("/PostBlog");
+					//Navigate to post a blog page 
+					myApp.props.history.push("/PostBlog/"+myApp.state.userid);
 				}
 				if(result.resultCode === myApp.ERROR){
 					myApp.setState({
