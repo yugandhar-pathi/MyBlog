@@ -81,7 +81,7 @@ export default class HomePage extends Component {
 				<Container textAlign="justified">
 					<Header as='h1'>Thanks for reaching my Website!!</Header>
 					<p>I plan to use this website record my technical learnings. </p>
-					<p>I have an option for visitors like you, to post on technical topics here.</p>
+					<p>It helps me in two ways ..one review my learnings, two helps others too!! </p>
 					<p>You find any interisting topics and would like to post? Please go ahead.</p>
 					<Button onClick={this.postBlog}>PostBlog</Button>
 					

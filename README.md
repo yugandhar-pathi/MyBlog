@@ -38,6 +38,14 @@ Server has following end points.
 3.postBlog - save a blog posted by user.  
 4.fetchBlog - fetch particular blog.  
 5.fetchBlogList - fetch list of blogs updated by all users.  
+6.isAuthenticationRequired - Check if user has already authenticated or not.  
+
+Authentication Process:  
+1.Client supplies user credentials to server.  
+2.Server validates the credentials against database.  
+3.If user is valid, server sets httpOnly cookie(session) on the client.  
+4.Cookie is attached to services which are executed after successful authentication.
+
 
 
 

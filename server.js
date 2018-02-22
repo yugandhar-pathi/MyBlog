@@ -140,7 +140,7 @@ class BlogServices extends BaseServices {
 							author : String,
 							title : String,
 							body : String,
-							date : Date
+							date : String
 						});
 						
 		this.model = mongoose.model("Blog",this.blogSchema);
@@ -148,6 +148,8 @@ class BlogServices extends BaseServices {
 	
 	postBlog(req,res){
 		var blogToSave = new this.model(req.body);
+		blogToSave.date = (new Date()).toDateString()
+
 		console.log('blog data from client '+JSON.stringify(blogToSave));
 		
 		blogToSave.save()

@@ -49,8 +49,8 @@ export default class HomePage extends Component {
 			},
 			body:JSON.stringify({ 	author : myApp.props.match.params.UserId, 
 									title : myApp.state.title, 
-									body : myApp.state.body, 
-									date : (new Date()).toLocaleDateString("en-US",options)
+									body : myApp.state.body 
+									//date : (new Date()).toLocaleDateString("en-US",options)
 								})
 		}).then(function(resut){
 			console.log('success for postBlog');
