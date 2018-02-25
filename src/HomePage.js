@@ -72,34 +72,32 @@ export default class HomePage extends Component {
 
 	render(){
 		const { error, isLoaded, items } = this.state;
-		if (error) {
-		  return <div>Error: {error.message}</div>;
-		} else if (!isLoaded) {
-		  return <div>Loading...</div>;
-		} else {
-		  return (
-				<Container textAlign="justified">
-					<Header as='h1'>Thanks for reaching my Website!!</Header>
-					<p>I plan to use this website record my technical learnings. </p>
-					<p>It helps me in two ways ..one review my learnings, two helps others too!! </p>
-					<p>You find any interisting topics and would like to post? Please go ahead.</p>
-					<Button onClick={this.postBlog}>PostBlog</Button>
-					
-					<Header as='h3'>Please find below list of topics posted till now.</Header>
-					<List>
-						{items.map(item => (
-							<List.Item key={item._id}>
-								<NavLink to={'/DisplayBlog/'+item._id}>
-									<List.Content>
-										<List.Header>{item.title}</List.Header>
-										<List.Description> Posted by ..<b>{item.author}</b> on {item.date}</List.Description>
-									</List.Content>
-								</NavLink>
-							</List.Item>
-						  ))}
-					</List>
-				</Container>
-		  );
-		}
+		return (
+			<Container textAlign="justified">
+				<Header as='h1'>Thanks for reaching my Website!!</Header>
+				<p>I plan to use this website to note my technical learnings. </p>
+				<p>It helps me in two ways ..one review my learnings, two helps others too!! </p>
+				<p>You find any interisting topic and would like to post? Please go ahead.</p>
+				<Button onClick={this.postBlog}>PostBlog</Button>
+				{ !isLoaded ?  <div>Loading...</div> :
+					<div>
+						<Header as='h3'>Please find below list of topics posted till now.</Header>
+						<List>
+							{items.map(item => (
+								<List.Item key={item._id}>
+									<NavLink to={'/DisplayBlog/'+item._id}>
+										<List.Content>
+											<List.Header>{item.title}</List.Header>
+											<List.Description> Posted by ..<b>{item.author}</b> on {item.date}</List.Description>
+										</List.Content>
+									</NavLink>
+								</List.Item>
+							  ))}
+						</List>
+					</div>
+				}
+				{ error ? <div>Error: {error.message}</div> : <p></p> }
+			</Container>
+		);
 	}
 }

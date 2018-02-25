@@ -22,6 +22,10 @@
   font-size: large;
 }
 
+.Top-Margin{
+	margin-top:5%;
+}
+
 .NavBar{
   background-color: rgba(0, 173, 255, 1) !important;
   font-color: white;

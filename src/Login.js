@@ -51,7 +51,12 @@ export default class Login extends Component {
 				console.log('Result for authUser '+JSON.stringify(result));
 				if(result.resultCode === myApp.SUCCESS){
 					//Navigate to post a blog page 
-					myApp.props.history.push("/PostBlog/"+myApp.state.userid);
+					if(sessionStorage.getItem('onLoginSuccess').indexOf('DisplayBlog') != -1){
+						myApp.props.history.push(sessionStorage.getItem('onLoginSuccess'));
+						sessionStorage.removeItem('onLoginSuccess');
+					}else{	
+						myApp.props.history.push("/PostBlog/"+myApp.state.userid);
+					}
 				}
 				if(result.resultCode === myApp.ERROR){
 					myApp.setState({
