@@ -26,6 +26,10 @@ export default class RegisterUser extends Component {
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 	
+	validate(value) {
+		const re = /^[a-zA-Z0-9 \-_]*$/;
+		return re.test(value)
+	}
 	
 	/*
 		Handle form validation on each char input.
@@ -41,7 +45,7 @@ export default class RegisterUser extends Component {
 			if(value.length < 2){
 				isValid = false;
 			}else{
-				isValid = true;
+				isValid = this.validate(value);
 			}
 			this.setState({
 				[name]:value,
@@ -54,7 +58,7 @@ export default class RegisterUser extends Component {
 			if(value.length < 8){
 				isValid = false;
 			}else{
-				isValid = true;
+				isValid = this.validate(value);
 			}
 			const validField = name === 'userid' ? 'isUserIdValid' : 'isPasswordValid'
 			this.setState({
@@ -126,12 +130,12 @@ export default class RegisterUser extends Component {
 							<Form.Input required label="First Name:" placeholder="Min 2 chars" type="text" name="firstName" onChange={this.handleChange}/> 
 							<Form.Input required label="Last Name:" type="text" placeholder="Min 2 chars" name="lastName" onChange={this.handleChange}/>
 						  </Form.Group>
-						  {!this.state.isNameValid?<Message content='First or Last name should be of min 2 chars length.'/>:<p></p>}
+						  {!this.state.isNameValid?<Message content='First or Last name should be of min 2 chars length & aplhanumeric.'/>:<p></p>}
 						  <Form.Input required label="Choose your id:" type="text" name="userid" onChange={this.handleChange}/>
-						  {!this.state.isUserIdValid?<Message content='Id should be of minimum 8 chars length.'/>:<p></p>}
+						  {!this.state.isUserIdValid?<Message content='Id should be of minimum 8 chars length & aplhanumeric.'/>:<p></p>}
 						  
 						  <Form.Input required label='Enter Password:' name="password" type='password' onChange={this.handleChange}/>
-						  {!this.state.isPasswordValid?<Message content='Password should be of minimum 8 chars length.'/>:<p></p>}
+						  {!this.state.isPasswordValid?<Message content='Password should be of minimum 8 chars length & aplhanumeric.'/>:<p></p>}
 						  <Form.Input required label='Confirm Password:' name="confPassword" type='password' onChange={this.handleChange}/>
 						  {!this.state.isPasswordConfirmed?<Message content="Password doesn't match."/>:<p></p>}
 						  <Form.Input label='Email:' name="email" type='email' onChange={this.handleChange}/>

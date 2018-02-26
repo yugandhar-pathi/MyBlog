@@ -147,6 +147,7 @@ export default class DisplayBlog extends Component {
 		  return (
 				<Container textAlign="justified">
 					<Header as='h1'>{blog.title}</Header>
+					<Header as='h6'>Authored by {blog.author} on {blog.date}</Header>
 					<p>{blog.body}</p>
 					<Container>
 						<Header as='h3'>Comments:</Header>

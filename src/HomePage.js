@@ -33,7 +33,7 @@ export default class HomePage extends Component {
 			  //Blog det
 			  this.setState({
 				isLoaded: true,
-				items: result.items
+				items: result.items.reverse()
 			  });
 			},
 			(error) => {

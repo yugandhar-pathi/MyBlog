@@ -28,19 +28,16 @@ export default class HomePage extends Component {
 	postBlog(event){
 		
 		var myApp = this;
-		
-		if(this.state.title.length ==0 || this.state.body.length === 0){
+		var title = this.state.title.trim();
+		var body = this.state.body.trim();
+		if(title.length ==0 || body.length === 0){
 			this.setState({
-				blogDetailsNotFilled:true
+				blogDetailsNotFilled:true,
+				title:title,
+				body:body
 			})
 			return;
 		}
-		
-		var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-		/*this.setState({
-			date:(new Date()).toLocaleDateString("en-US",options),
-			author : myApp.props.match.params.id
-		})*/
 		
 		fetch('/postBlog',{
 			method:'POST',
@@ -50,7 +47,6 @@ export default class HomePage extends Component {
 			body:JSON.stringify({ 	author : myApp.props.match.params.UserId, 
 									title : myApp.state.title, 
 									body : myApp.state.body 
-									//date : (new Date()).toLocaleDateString("en-US",options)
 								})
 		}).then(function(resut){
 			console.log('success for postBlog');

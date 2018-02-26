@@ -29,8 +29,10 @@ export default class Login extends Component {
 
 	handleLogin(){
 		
-		if(this.state.userid.length === this.LENGTHZERO || 
-			this.state.password.length === this.LENGTHZERO){
+		const userid = this.state.userid.trim();
+		const password = this.state.password;
+		if(userid.length === this.LENGTHZERO || 
+			password.length === this.LENGTHZERO){
 			this.setState({
 				userCredsNotFilled : true,
 				errorMessage : "UserName or Password can't be empty"
@@ -51,7 +53,8 @@ export default class Login extends Component {
 				console.log('Result for authUser '+JSON.stringify(result));
 				if(result.resultCode === myApp.SUCCESS){
 					//Navigate to post a blog page 
-					if(sessionStorage.getItem('onLoginSuccess').indexOf('DisplayBlog') != -1){
+					const navigateTo = sessionStorage.getItem('onLoginSuccess');
+					if(navigateTo && navigateTo.indexOf('DisplayBlog') != -1){
 						myApp.props.history.push(sessionStorage.getItem('onLoginSuccess'));
 						sessionStorage.removeItem('onLoginSuccess');
 					}else{	
