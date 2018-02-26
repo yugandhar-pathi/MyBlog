@@ -42,6 +42,8 @@ Server has following end points.
 4.fetchBlog - fetch particular blog.  
 5.fetchBlogList - fetch list of blogs updated by all users.  
 6.isAuthenticationRequired - Check if user has already authenticated or not.  
+7.postComment - post comment for a blog.
+
 
 Authentication Process:  
 1.Client supplies user credentials to server.  
